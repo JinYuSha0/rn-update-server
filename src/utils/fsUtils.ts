@@ -1,22 +1,22 @@
-const fs = require('fs');
-const path = require('path');
+import { dirname } from 'path';
+import { existsSync, mkdirSync } from 'fs';
 
 /**
  * 递归创建文件夹
- * @param {*} dirname
+ * @param {*} _dirname
  * @returns
  */
-export function createDirIfNotExists(dirname) {
-  function mkdirsSync(dirname) {
-    if (fs.existsSync(dirname)) {
+export function createDirIfNotExists(_dirname) {
+  function mkdirsSync(_dirname) {
+    if (existsSync(_dirname)) {
       return true;
     } else {
-      if (mkdirsSync(path.dirname(dirname))) {
-        fs.mkdirSync(dirname);
+      if (mkdirsSync(dirname(_dirname))) {
+        mkdirSync(_dirname);
         return true;
       }
     }
   }
-  mkdirsSync(dirname);
-  return dirname;
+  mkdirsSync(_dirname);
+  return _dirname;
 }

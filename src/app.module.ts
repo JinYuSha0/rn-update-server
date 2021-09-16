@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RNModule } from './modules/rn/rn.module';
+import appConfig from '@configs/app';
 import mongodbConfig from '@configs/mongodb';
 
 @Module({
@@ -11,7 +12,7 @@ import mongodbConfig from '@configs/mongodb';
       envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
       ignoreEnvFile: false,
       isGlobal: true,
-      load: [mongodbConfig],
+      load: [mongodbConfig, appConfig],
       validationSchema: Joi.object({
         NODE_ENV: Joi.string()
           .valid('development', 'production')

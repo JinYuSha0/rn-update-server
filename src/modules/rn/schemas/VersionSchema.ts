@@ -6,7 +6,6 @@ export const VersionSchema = new mongoose.Schema(
       type: Number,
       index: true,
       required: true,
-      default: 0,
     },
     hash: {
       type: String,

@@ -8,7 +8,7 @@ export interface Version {
 }
 
 export interface InsertComponent {
-  vsersion: number;
+  version: number;
   hash: string;
   commonHash: string;
   isCommon: boolean;

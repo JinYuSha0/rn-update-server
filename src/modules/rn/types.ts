@@ -1,13 +1,4 @@
-export interface Version {
-  version: number;
-  hash?: string;
-  commonHash: string;
-  isCommon: boolean;
-  componentName?: string;
-  buildTime: number;
-}
-
-export interface InsertComponent {
+export interface Component {
   version: number;
   hash: string;
   commonHash: string;

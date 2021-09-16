@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Version, InsertComponent } from './types';
+import { Component } from './types';
 import { zip } from 'compressing';
 import { join } from 'path';
 import {
@@ -13,15 +13,23 @@ import {
 } from 'fs';
 import { createDirIfNotExists } from '@utils/fsUtils';
 import { ConfigService } from '@nestjs/config';
+import { isNil } from 'lodash';
 import UpdateComponentDTO from './dto/updateComponent.dto';
+import CheckUpdateDTO from './dto/checkUpdate.dto';
 
 @Injectable()
 export class RNService {
   constructor(
-    @InjectModel('Version') private readonly versionModel: Model<Version>,
+    @InjectModel('Version') private readonly componentModel: Model<Component>,
     private readonly configService: ConfigService,
   ) {}
 
+  /**
+   * 上传业务包更新组件版本
+   * @param file
+   * @param body
+   * @returns
+   */
   async updateComponent(file: Express.Multer.File, body: UpdateComponentDTO) {
     const pwd = process.env.PWD;
     const compressingDestPath = createDirIfNotExists(
@@ -39,7 +47,7 @@ export class RNService {
         throw new Error('Not setting.json');
       }
       const setting = JSON.parse(readFileSync(settingJSONPath).toString());
-      await new this.versionModel({
+      await new this.componentModel({
         version: +body.version,
         hash: setting.hash,
         commonHash: setting.commonHash,
@@ -49,8 +57,8 @@ export class RNService {
         buildTime: setting.timestamp,
       }).save();
       return {
-        downloadUrl: this.configService.get('app.host') + file.filename
-      }
+        downloadUrl: this.configService.get('app.host') + file.filename,
+      };
     } catch (err) {
       const uploadFilePath = join(pwd, 'upload', file.filename);
       if (existsSync(uploadFilePath)) {
@@ -64,7 +72,29 @@ export class RNService {
     }
   }
 
-  findAllNewestComponentByCommonHash() {
-    return {};
+  /**
+   * 查询最新的版本
+   * @param query
+   * @returns
+   */
+  async checkUpdate(query: CheckUpdateDTO): Promise<Component[]> {
+    const { commonHash } = query;
+    const res = await this.componentModel.aggregate([
+      {
+        $match: !isNil(commonHash) ? { commonHash } : {},
+      },
+      {
+        $group: {
+          _id: '$componentName',
+          version: { $max: '$version' },
+          document: { $push: '$$ROOT' },
+        },
+      },
+      { $project: { _id: 0 } },
+    ]);
+    return res.map((item) => {
+      const { _id, ...rest } = item.document[0];
+      return rest;
+    });
   }
 }

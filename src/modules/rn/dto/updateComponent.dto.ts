@@ -6,5 +6,5 @@ export default class UpdateComponentDTO {
   @IsNotEmpty()
   @Type(() => Number)
   @Min(1)
-  version: number;
+  readonly version: number;
 }

@@ -37,6 +37,7 @@ export const VersionSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true,
+    versionKey: false,
+    timestamps: false,
   },
 );

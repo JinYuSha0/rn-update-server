@@ -53,7 +53,7 @@ export class RNService {
         commonHash: setting.commonHash,
         componentName: setting.componentName,
         isCommon: false,
-        downloadUrl: this.configService.get('app.host') + file.filename,
+        downloadUrl: file.filename,
         buildTime: setting.timestamp,
       }).save();
       return {
@@ -83,18 +83,25 @@ export class RNService {
       {
         $match: !isNil(commonHash) ? { commonHash } : {},
       },
+      { $sort: { version: -1 } },
       {
         $group: {
           _id: '$componentName',
-          version: { $max: '$version' },
-          document: { $push: '$$ROOT' },
+          version: { $first: '$version' },
+          hash: { $first: '$hash' },
+          commonHash: { $first: '$commonHash' },
+          isCommon: { $first: '$isCommon' },
+          componentName: { $first: '$componentName' },
+          downloadUrl: { $first: '$downloadUrl' },
+          buildTime: { $first: '$buildTime' },
         },
       },
       { $project: { _id: 0 } },
     ]);
+    const host = this.configService.get('app.host');
     return res.map((item) => {
-      const { _id, ...rest } = item.document[0];
-      return rest;
+      item.downloadUrl = host + item.downloadUrl;
+      return item;
     });
   }
 }

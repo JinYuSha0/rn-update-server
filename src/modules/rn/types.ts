@@ -1,4 +1,5 @@
 export interface Component {
+  platform: string;
   version: number;
   hash: string;
   commonHash: string;

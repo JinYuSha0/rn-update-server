@@ -13,7 +13,7 @@ import {
 } from 'fs';
 import { createDirIfNotExists } from '@utils/fsUtils';
 import { ConfigService } from '@nestjs/config';
-import { isNil } from 'lodash';
+import { isEmpty } from 'lodash';
 import UpdateComponentDTO from './dto/updateComponent.dto';
 import CheckUpdateDTO from './dto/checkUpdate.dto';
 
@@ -48,6 +48,7 @@ export class RNService {
       }
       const setting = JSON.parse(readFileSync(settingJSONPath).toString());
       await new this.componentModel({
+        platform: setting.platform,
         version: +body.version,
         hash: setting.hash,
         commonHash: setting.commonHash,
@@ -78,10 +79,13 @@ export class RNService {
    * @returns
    */
   async checkUpdate(query: CheckUpdateDTO): Promise<Component[]> {
-    const { commonHash } = query;
+    const { platform, commonHash } = query;
     const res = await this.componentModel.aggregate([
       {
-        $match: !isNil(commonHash) ? { commonHash } : {},
+        $match: {
+          platform,
+          ...(!isEmpty(commonHash) ? { commonHash } : {}),
+        },
       },
       { $sort: { version: -1 } },
       {

@@ -2,20 +2,21 @@ import * as mongoose from 'mongoose';
 
 export const VersionSchema = new mongoose.Schema(
   {
+    platform: {
+      type: String,
+      required: true,
+    },
     version: {
       type: Number,
-      index: true,
       required: true,
     },
     hash: {
       type: String,
-      index: true,
       maxlength: 32,
       unique: true,
     },
     commonHash: {
       type: String,
-      index: true,
       maxlength: 32,
       required: true,
     },
@@ -40,4 +41,9 @@ export const VersionSchema = new mongoose.Schema(
     versionKey: false,
     timestamps: false,
   },
+);
+
+VersionSchema.index(
+  { platform: 1, version: 1, commonHash: 1 },
+  { unique: true },
 );

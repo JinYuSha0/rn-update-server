@@ -20,14 +20,14 @@ export const VersionSchema = new mongoose.Schema(
       maxlength: 32,
       required: true,
     },
-    isCommon: {
-      type: Boolean,
-      default: false,
-    },
     componentName: {
       type: String,
       index: true,
       maxlength: 64,
+    },
+    componentType: {
+      type: Number,
+      default: 2,
     },
     downloadUrl: {
       type: String,

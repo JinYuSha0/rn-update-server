@@ -31,12 +31,12 @@ export class RNService {
    * @returns
    */
   async updateComponent(file: Express.Multer.File, body: UpdateComponentDTO) {
-    const pwd = process.env.PWD;
+    const cwd = process.cwd();
     const compressingDestPath = createDirIfNotExists(
-      join(pwd, 'temp', file.originalname.split('.')[0]),
+      join(cwd, 'temp', file.originalname.split('.')[0]),
     );
     try {
-      await zip.uncompress(join(pwd, file.path), compressingDestPath);
+      await zip.uncompress(join(cwd, file.path), compressingDestPath);
       const childPath = readdirSync(compressingDestPath)[0];
       const settingJSONPath = join(
         compressingDestPath,
@@ -53,7 +53,7 @@ export class RNService {
         hash: setting.hash,
         commonHash: setting.commonHash,
         componentName: setting.componentName,
-        isCommon: false,
+        componentType: setting.componentType,
         downloadUrl: file.filename,
         buildTime: setting.timestamp,
       }).save();
@@ -61,7 +61,7 @@ export class RNService {
         downloadUrl: this.configService.get('app.host') + file.filename,
       };
     } catch (err) {
-      const uploadFilePath = join(pwd, 'upload', file.filename);
+      const uploadFilePath = join(cwd, 'upload', file.filename);
       if (existsSync(uploadFilePath)) {
         unlinkSync(uploadFilePath);
       }
@@ -94,8 +94,8 @@ export class RNService {
           version: { $first: '$version' },
           hash: { $first: '$hash' },
           commonHash: { $first: '$commonHash' },
-          isCommon: { $first: '$isCommon' },
           componentName: { $first: '$componentName' },
+          componentType: { $first: '$componentType' },
           downloadUrl: { $first: '$downloadUrl' },
           buildTime: { $first: '$buildTime' },
         },

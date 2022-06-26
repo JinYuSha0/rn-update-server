@@ -3,8 +3,8 @@ export interface Component {
   version: number;
   hash: string;
   commonHash: string;
-  isCommon: boolean;
   componentName: string;
+  componentType: number;
   downloadUrl: string;
   buildTime: number;
 }
